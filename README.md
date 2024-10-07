@@ -20,7 +20,7 @@ requests
 Installation
 
 Clone the repository:
-Copygit clone https://github.com/Shivam-Cialf09/university-program-extractor.git
+Copygit clone https://github.com/Shivam-Cialf09/Universities-Program-Data-Fetching-using-LLM-Model-Hermes-3-Llama-3.1-70B
 
 Navigate to the project directory:
 Copycd university-program-extractor
@@ -56,6 +56,7 @@ Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
 License
 This project is licensed under the MIT License - see the LICENSE.md file for details.
+
 Acknowledgments
 
 Groq API for providing the AI capabilities

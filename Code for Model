@@ -1,0 +1,109 @@
+import pandas as pd
+import time
+from groq import Groq
+from requests.exceptions import HTTPError
+
+
+client = Groq(api_key='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')  
+
+
+def fetch_undergraduate_programs_with_aishe(file_path):
+  
+    try:
+        universities_data = pd.read_excel(file_path)  
+    except Exception as e:
+        print(f"Error reading the Excel file: {e}")
+        return
+
+    
+    if 'For GPT' not in universities_data.columns or 'Aishe Code' not in universities_data.columns:
+        print("Error: Required columns 'For GPT' and 'Aishe Code' are missing in the input file.")
+        return
+
+   
+    institutions = universities_data[['For GPT', 'Aishe Code']].iloc[:600]
+
+   
+    college_details = []
+
+  
+    for index, row in institutions.iterrows():
+        institution = row['For GPT']
+        aishe_code = row['Aishe Code']
+        
+      
+        prompt = (f"Please provide a list of all undergraduate programs offered by {institution}, "
+                  f"including each program's majors and links to the program details, and the Aishe Code {aishe_code}. "
+                  f"Format the response as: 'Aishe Code - Program Name - Major - Link'.")
+
+        
+        retries = 3
+        while retries > 0:
+            try:
+                # API call to fetch data
+                chat_completion = client.chat.completions.create(
+                    messages=[
+                        {
+                            'role': 'system',
+                            'content': 'You are a data extraction model that provides accurate information about undergraduate programs from universities.'
+                        },
+                        {
+                            'role': 'user',
+                            'content': prompt
+                        }
+                    ],
+                    model='llama3-groq-70b-8192-tool-use-preview',
+                    temperature=0.5,
+                    max_tokens=2048,
+                    top_p=1,
+                    stop=None,
+                    stream=False,
+                )
+
+                response_content = chat_completion.choices[0].message.content
+
+              
+                lines = response_content.splitlines()
+                for line in lines:
+                    if line.strip():  
+                        program_info = line.split(' - ')
+                        if len(program_info) == 4:
+                            aishe_code, program_name, major, link = program_info
+                            college_details.append({
+                                'Aishe Code': aishe_code.strip(),
+                                'University': institution,
+                                'Program Name': program_name.strip(),
+                                'Major': major.strip(),
+                                'Link': link.strip()
+                            })
+
+                           
+                            print(f"Aishe Code: {aishe_code.strip()}, University: {institution}, Program Name: {program_name.strip()}, Major: {major.strip()}, Link: {link.strip()}")
+
+                break  
+
+            except HTTPError as e:
+                print(f"HTTPError occurred: {e}")
+                retries -= 1
+                if retries == 0:
+                    print(f"Failed to fetch data for {institution}. Skipping to the next.")
+                else:
+                    print(f"Retrying... ({3 - retries} attempt(s) failed).")
+                time.sleep(5)  
+
+   
+    df = pd.DataFrame(college_details)
+
+
+    if df.isnull().values.any():
+        print("Some entries may not have valid data.")
+
+ 
+    output_file_path = r'/Users/shivamsharma/Downloads/Non_Affiliated_Institutes_Data_extraction_sheet17.xlsx'  
+    
+    
+    df.to_excel(output_file_path, index=False)
+    print("Output saved to:", output_file_path)
+
+file_path = r'/Users/shivamsharma/Downloads/Non Affiliated Institutes.xlsx'  
+fetch_undergraduate_programs_with_aishe(file_path)

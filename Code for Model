@@ -4,7 +4,7 @@ from groq import Groq
 from requests.exceptions import HTTPError
 
 
-client = Groq(api_key='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')  
+client = Groq(api_key='API KEY')  
 
 
 def fetch_undergraduate_programs_with_aishe(file_path):

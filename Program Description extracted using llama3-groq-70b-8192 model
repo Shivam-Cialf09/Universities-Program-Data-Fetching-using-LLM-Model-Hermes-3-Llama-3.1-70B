@@ -1,0 +1,92 @@
+import pandas as pd
+import time
+from groq import Groq
+from requests.exceptions import HTTPError
+
+
+client = Groq(api_key='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')  
+
+
+def fetch_program_descriptions(file_path):
+    
+    try:
+        programs_data = pd.read_excel(file_path)  
+    except Exception as e:
+        print(f"Error reading the Excel file: {e}")
+        return
+        
+    
+    program_names = programs_data['Program Name'].iloc[:600]
+    
+ 
+    program_details = []
+
+    
+    for program_name in program_names:
+ 
+        prompt = (f"Please provide a general description of the undergraduate program '{program_name}'. "
+                  f"Limit the description to 200-250 words and do not include any specific details about universities or locations.")
+
+        
+        retries = 3
+        while retries > 0:
+            try:
+               
+                chat_completion = client.chat.completions.create(
+                    messages=[
+                        {
+                            'role': 'system',
+                            'content': 'You are a data extraction model that provides detailed descriptions of undergraduate programs.'
+                        },
+                        {
+                            'role': 'user',
+                            'content': prompt
+                        }
+                    ],
+                    model='llama3-groq-70b-8192-tool-use-preview',
+                    temperature=0.5,
+                    max_tokens=2048,
+                    top_p=1,
+                    stop=None,
+                    stream=False,
+                )
+
+                response_content = chat_completion.choices[0].message.content.strip()
+
+            
+                program_details.append({
+                    'Program Name': program_name,
+                    'Program Description': response_content
+                })
+
+             
+                print(f"Program Name: {program_name}")
+                print(f"Description: {response_content}\n")
+
+                break  
+
+            except HTTPError as e:
+                print(f"HTTPError occurred: {e}")
+                retries -= 1
+                if retries == 0:
+                    print(f"Failed to fetch description for {program_name}. Skipping to the next.")
+                else:
+                    print(f"Retrying... ({3 - retries} attempt(s) failed).")
+                time.sleep(5) 
+
+   
+    df = pd.DataFrame(program_details)
+
+
+    if df.isnull().values.any():
+        print("Some entries may not have valid data.")
+
+  
+    output_file_path = r'/Users/shivamsharma/Downloads/DA_Program_Descriptions_Sheet31.xlsx'  
+    
+   
+    df.to_excel(output_file_path, index=False)
+    print("Output saved to:", output_file_path)
+
+file_path = r'/Users/shivamsharma/Downloads/ DA course list  for  program description.xlsx'  
+fetch_program_descriptions(file_path)

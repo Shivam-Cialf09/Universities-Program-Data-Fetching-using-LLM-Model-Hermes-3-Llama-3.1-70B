@@ -4,7 +4,7 @@ from groq import Groq
 from requests.exceptions import HTTPError
 
 
-client = Groq(api_key='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')  
+client = Groq(api_key='API KEY')  
 
 
 def fetch_program_descriptions(file_path):

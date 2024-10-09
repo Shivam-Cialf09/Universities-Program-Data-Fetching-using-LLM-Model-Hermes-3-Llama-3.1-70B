@@ -82,11 +82,11 @@ def fetch_program_descriptions(file_path):
         print("Some entries may not have valid data.")
 
   
-    output_file_path = r'/Users/shivamsharma/Downloads/DA_Program_Descriptions_Sheet31.xlsx'  
+    output_file_path = r'/Users/System_Name/Downloads/DA_Program_Descriptions_Sheet31.xlsx'  
     
    
     df.to_excel(output_file_path, index=False)
     print("Output saved to:", output_file_path)
 
-file_path = r'/Users/shivamsharma/Downloads/ DA course list  for  program description.xlsx'  
+file_path = r'/Users/System_Name/Downloads/ DA course list  for  program description.xlsx'  
 fetch_program_descriptions(file_path)

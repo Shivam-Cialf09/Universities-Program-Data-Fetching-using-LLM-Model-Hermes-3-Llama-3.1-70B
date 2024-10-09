@@ -99,11 +99,11 @@ def fetch_undergraduate_programs_with_aishe(file_path):
         print("Some entries may not have valid data.")
 
  
-    output_file_path = r'/Users/shivamsharma/Downloads/Non_Affiliated_Institutes_Data_extraction_sheet17.xlsx'  
+    output_file_path = r'/Users/System_Name/Downloads/Non_Affiliated_Institutes_Data_extraction_sheet17.xlsx'  
     
     
     df.to_excel(output_file_path, index=False)
     print("Output saved to:", output_file_path)
 
-file_path = r'/Users/shivamsharma/Downloads/Non Affiliated Institutes.xlsx'  
+file_path = r'/Users/System_Name/Downloads/Non Affiliated Institutes.xlsx'  
 fetch_undergraduate_programs_with_aishe(file_path)
